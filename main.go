@@ -11,6 +11,7 @@ import (
 
 	"github.com/fsouza/go-dockerclient"
 	"github.com/spf13/cobra"
+	"github.com/zyfdegh/go-dockerpty"
 )
 
 func main() {
@@ -77,18 +78,10 @@ func localDockerExec(containerId string) {
 		log.Fatalf("create exec error: %v\n", err)
 	}
 
-	// start exec
-	startOpts := docker.StartExecOptions{}
-	startOpts.Tty = true
-	startOpts.RawTerminal = true
-	startOpts.Detach = false
-	// if tty enabled, set error stream to stdout.
-	startOpts.ErrorStream = os.Stdout
-	startOpts.InputStream = os.Stdin
-	startOpts.OutputStream = os.Stdout
-
-	err = client.StartExec(exec.ID, startOpts)
+	// start tty
+	err = dockerpty.StartExec(client, exec)
 	if err != nil {
-		log.Fatalf("start exec error: %v\n", err)
+		log.Printf("start exec error: %v\n", err)
+		return
 	}
 }
